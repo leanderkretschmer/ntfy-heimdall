@@ -104,3 +104,45 @@ Um das Skript automatisch auszuführen, kannst du einen Cronjob einrichten.
 
 Das Skript erzeugt eine Statusdatei namens `status.txt` im Verzeichnis `/home/scripts/ntfy`. Diese Datei enthält den aktuellen Status aller überwachten VMs und/oder Container. Die Datei ist menschenlesbar und im folgenden Format aufgebaut:
 
+#######################################################
+Aktueller Status - 22:15
+
+#######################################################
+
+proxmox-Proxy-running proxmox-jellyfin-running proxmox-Debian-stopped docker-wg-easy-running docker-homepage-running
+
+#######################################################
+text
+
+
+(Die Datei enthält nur Docker Container, wenn du das `docker_monitor.sh` Skript verwendest.)
+
+Die Zeilenumbrüche im Dockerpart sehen doof aus, das lässt sich aber mit dem Format vom docker ps beheben, dafür ist aber dein docker ps befehl zuständig das musst du anpassen (also ich)
+
+## Blacklist-Datei bearbeiten
+
+Die `blacklist.txt` Datei ermöglicht es dir, bestimmte VMs oder Docker Container von der Überwachung auszuschließen. Um einen Eintrag hinzuzufügen, öffne die Datei mit einem Texteditor (z.B. `nano` oder `vi`) und füge den Namen der VM oder des Containers in eine neue Zeile ein. Speichere die Datei, nachdem du deine Änderungen vorgenommen hast. Das Skript liest die Blacklist-Datei bei jeder Ausführung und ignoriert alle Einträge, die in der Blacklist-Datei aufgeführt sind.
+
+## Fehlerbehebung
+
+*   **Keine Benachrichtigungen erhalten:**
+    *   Stelle sicher, dass dein ntfy.sh Topic korrekt eingerichtet ist und du den Topic mit der ntfy App abonniert hast.
+    *   Überprüfe, ob das Skript korrekt ausgeführt wird (überprüfe die Cronjob-Einstellungen).
+    *   Überprüfe die Statusdatei, um sicherzustellen, dass das Skript den Status der VMs und Container korrekt erfasst.
+    *   Überprüfe die Blacklist-Datei, um sicherzustellen, dass die VMs und Container, die du überwachen möchtest, nicht versehentlich ausgeschlossen wurden.
+*   **Falsche Statusmeldungen:**
+    *   Überprüfe die Statusdatei, um sicherzustellen, dass das Skript den Status der VMs und Container korrekt erfasst.
+    *   Stelle sicher, dass die Zeit auf deinem Proxmox Server korrekt eingestellt ist.
+
+## Lizenz
+
+Dieses Projekt ist unter der [GNU General Public License v3.0](LICENSE) lizenziert.
+
+## Haftungsausschluss
+
+Die Nutzung dieses Skripts erfolgt auf eigene Gefahr. Der Autor übernimmt keine Verantwortung für Schäden, die durch die Nutzung dieses Skripts entstehen.
+
+## Unterstützung
+
+Bei Fragen oder Problemen kannst du ein Issue in diesem GitHub Repository erstellen.
+
