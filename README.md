@@ -69,7 +69,7 @@ Dieses Bash-Skript überwacht den Status von Proxmox VMs und/oder Docker Contain
 
 2.  **Topic erstellen:**
 
-    Gib deinen gewünschten Topic Namen ein (z.B. `pve-monitor`) und drücke die Enter-Taste.
+    Gib deinen gewünschten Topic Namen ein (z.B. `myserver-monitor`) und drücke die Enter-Taste.
 
 3.  **Topic abonnieren:**
 
