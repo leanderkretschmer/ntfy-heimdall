@@ -123,7 +123,7 @@ Die `blacklist.txt` Datei ermöglicht es dir, bestimmte VMs oder Docker Containe
 
 ## Lizenz
 
-Dieses Projekt ist unter der [GNU General Public License v3.0](LICENSE) lizenziert.
+Dieses Projekt ist unter der [MIT License](LICENSE) lizenziert.
 
 ## Haftungsausschluss
 
