@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-NTFY_TOPIC="pve-leander"
-STATUS_FILE="/home/scripts/ntfy/status.txt"
+NTFY_TOPIC="ntfy-chat"
+STATUS_FILE="/path/to/datastorage/status.txt"
 
 # Function to send a notification
 send_notification() {
@@ -76,7 +76,7 @@ CURRENT_DOCKER_STATUS=$(get_docker_status)
 
 # Write current status to file with timestamp
 echo "#######################################################################" >> "$STATUS_FILE"
-echo "#               Aktueller Status - $(date +'%H:%M')              #" >> "$STATUS_FILE"
+echo "#               Aktueller Status - $(date +'%H:%M')                        #" >> "$STATUS_FILE"
 echo "#######################################################################" >> "$STATUS_FILE"
 echo "" >> "$STATUS_FILE"
 
