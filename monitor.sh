@@ -4,6 +4,7 @@
 NTFY_TOPIC="ntfy-chat"
 STATUS_FILE="/path/to/ntfy/status.txt"
 BLACKLIST_FILE="/path/to/ntfy/blacklist.txt"
+DISK_CONFIG_FILE="/path/to/ntfy/disk_config.txt"
 
 # Function to send a notification
 send_notification() {
@@ -68,7 +69,28 @@ get_docker_status() {
   done
 }
 
+# Function to get disk space
+get_disk_space() {
+  local path="$1"
+  local threshold_mb="$2"
+  local threshold_gb=$(echo "scale=2; $threshold_mb / 1024" | bc)
+
+  # Get the free disk space in GB
+  free_space_kb=$(df -k "$path" | awk 'NR==2{print $4}')
+  free_space_gb=$(echo "scale=2; $free_space_kb / 1048576" | bc)
+
+  # Check if the free space is below the threshold
+  if (( $(echo "$free_space_gb < $threshold_gb" | bc -l) )); then
+    message="Warning: Disk space on $path is running low ($free_space_gb GB < $threshold_gb GB)"
+    send_notification "$message"
+  fi
+
+  #Logge Speicherplatz in Datei
+  echo "Diskspace-$path-$free_space_gb GB"
+}
+
 # Main script
+
 # 1. Rotate the old status file (delete if it exists, then rename)
 if [ -f "$STATUS_FILE.old" ]; then
   rm -f "$STATUS_FILE.old"
@@ -81,13 +103,9 @@ fi
 # 2. Create and populate the new status file
 touch "$STATUS_FILE"
 
-# Get current status
+# VMs und Docker Container überwachen
 CURRENT_PROXMOX_STATUS=$(get_proxmox_status)
 CURRENT_DOCKER_STATUS=$(get_docker_status)
-
-# Combine the status
-CURRENT_STATUS="$CURRENT_PROXMOX_STATUS
-$CURRENT_DOCKER_STATUS"
 
 # Write current status to file with timestamp
 echo "#######################################################" >> "$STATUS_FILE"
@@ -95,9 +113,27 @@ echo "#               Aktueller Status - $(date +'%H:%M')              #" >> "$S
 echo "#######################################################" >> "$STATUS_FILE"
 echo "" >> "$STATUS_FILE"
 
-echo "$CURRENT_STATUS" | while read line; do
+echo "$CURRENT_PROXMOX_STATUS" | while read line; do
   create_db_entry "$line" >> "$STATUS_FILE"
 done
+
+echo "$CURRENT_DOCKER_STATUS" | while read line; do
+  create_db_entry "$line" >> "$STATUS_FILE"
+done
+
+# Read the disk configuration file and check the disk space
+if [ -f "$DISK_CONFIG_FILE" ]; then
+for line in $(cat "$DISK_CONFIG_FILE")
+do
+#Skip comments and empty lines
+ if [[ "$line" =~ ^[[:space:]]*#.* ]] || [[ -z "$line" ]]; then
+ continue
+    fi
+IFS='=' read -r path threshold <<< "$line"
+ # Check the disk space
+   create_db_entry "$(get_disk_space "$path" "$threshold")" >> "$STATUS_FILE"
+done
+fi
 
 echo "" >> "$STATUS_FILE"
 echo "#######################################################" >> "$STATUS_FILE"
