@@ -1,51 +1,57 @@
-# Proxmox und Docker Monitoring Script
+# Proxmox und Docker Monitoring Skript
 
-Dieses Bash-Skript überwacht den Status von Proxmox VMs und/oder Docker Containern und sendet Benachrichtigungen über [ntfy.sh](https://ntfy.sh).
+Dieses Skript überwacht den Status deiner Proxmox VMs und/oder Docker Container und sendet dir Benachrichtigungen über [ntfy.sh](https://ntfy.sh). So bleibst du informiert, wenn etwas nicht wie erwartet läuft.
 
-## Features
+## Was dieses Skript kann (Features)
 
-*   Überwacht den Status von Proxmox VMs (Running/Stopped).
-*   Überwacht den Status von Docker Containern (Running/Stopped/Restarting).
-*   Sendet Benachrichtigungen über ntfy.sh, wenn sich der Status einer VM oder eines Containers ändert.
-*   Unterstützt eine Blacklist, um bestimmte VMs oder Container von der Überwachung auszuschließen.
-*   Erzeugt eine menschenlesbare Statusdatei, die den aktuellen Status aller überwachten VMs und Container enthält.
-*   **Zwei Skriptvarianten:**
-    *   `monitor.sh`: Überwacht sowohl Proxmox VMs als auch Docker Container.
-    *   `docker_monitor.sh`: Überwacht nur Docker Container (ideal für Umgebungen ohne Proxmox).
+*   **Proxmox VM Überwachung:**  Erkennt, ob deine virtuellen Maschinen laufen (`Running`) oder gestoppt sind (`Stopped`).  (Nur für `monitor.sh`)
+*   **Docker Container Überwachung:**  Überwacht den Status deiner Container: `Running`, `Stopped` oder `Restarting`.
+*   **Benachrichtigungen:**  Sendet sofortige Benachrichtigungen über ntfy.sh, wenn sich der Status einer VM oder eines Containers ändert.
+*   **Blacklist:**  Du kannst bestimmte VMs oder Container von der Überwachung ausschließen. Das ist nützlich für Testsysteme oder unwichtige Container.
+*   **Statusdatei:**  Erzeugt eine leicht lesbare Datei, die den aktuellen Status aller überwachten VMs und Container anzeigt.
+*   **Zwei Varianten:**
+    *   `monitor.sh`:  Für die Überwachung von *sowohl* Proxmox VMs als auch Docker Containern.
+    *   `docker_monitor.sh`:  Für die Überwachung von *nur* Docker Containern.  Ideal, wenn du keinen Proxmox Server hast.
+*   **Festplattenüberwachung:** Überwacht den Füllstand von Festplatten und gibt eine Warnung aus, wenn ein bestimmter Schwellwert unterschritten wurde.
+*   **Temperaturüberwachung:** Überwacht die Temperatur der CPU und gibt eine Warnung aus, wenn ein bestimmter Schwellwert überschritten wurde.
 
-## Voraussetzungen
+## Was du brauchst (Voraussetzungen)
 
-*   Ein Proxmox Server (nur für `monitor.sh`).
-*   Docker installiert und konfiguriert (falls Docker Container überwacht werden sollen).
-*   `curl` installiert.
-*   Ein [ntfy.sh](https://ntfy.sh) Account (kostenlos).
+*   **Proxmox Server:**  Wird nur für das `monitor.sh` Skript benötigt.
+*   **Docker:**  Docker muss installiert und eingerichtet sein, wenn du Docker Container überwachen möchtest.
+*   **`curl`:**  `curl` muss installiert sein, da es für die Kommunikation mit ntfy.sh verwendet wird.
+*   **ntfy.sh Account:**  Ein kostenloser Account bei [ntfy.sh](https://ntfy.sh) ist erforderlich, um Benachrichtigungen zu erhalten.
 
-## Installation
+## So installierst du das Skript
 
-1.  **Skript(e) herunterladen:**
+1.  **Skript herunterladen:**
 
-    Lade die gewünschte(n) Skriptdatei(en) von diesem GitHub Repository herunter:
+    Lade das/die passende(n) Skript(e) von diesem GitHub Repository herunter:
 
-    *   `monitor.sh`: Für Proxmox und Docker Monitoring.
-    *   `docker_monitor.sh`: Für reines Docker Monitoring.
+    *   `monitor.sh`:  Wenn du Proxmox VMs *und* Docker Container überwachen möchtest.
+    *   `docker_monitor.sh`:  Wenn du *nur* Docker Container überwachen möchtest.
 
 2.  **Skript ausführbar machen:**
 
     ```bash
-    chmod +x monitor.sh  # Oder docker_monitor.sh, je nachdem welches Skript du verwendest
+    chmod +x monitor.sh  # oder docker_monitor.sh, je nachdem, welches Skript du verwendest
     ```
 
 3.  **Verzeichnis für Statusdateien erstellen:**
+
+    Erstelle einen Ordner, in dem das Skript die Statusdatei und andere Konfigurationsdateien speichert:
 
     ```bash
     mkdir -p /path/to/ntfy
     ```
 
+    Ersetze `/path/to/ntfy` durch den tatsächlichen Pfad, z.B. `/home/deinbenutzername/ntfy`.
+
 4.  **Blacklist-Datei erstellen (optional):**
 
-    Wenn du bestimmte VMs oder Container von der Überwachung ausschließen möchtest, erstelle eine Datei namens `blacklist.txt` im Verzeichnis `/path/to/ntfy`. Füge in jeder Zeile den Namen einer VM oder eines Containers hinzu, die/der ausgeschlossen werden soll.
+    Wenn du bestimmte VMs oder Container *nicht* überwachen möchtest, erstelle eine Datei namens `blacklist.txt` in dem Verzeichnis, das du in Schritt 3 erstellt hast (`/path/to/ntfy`).  Trage in jede Zeile den Namen einer VM oder eines Containers ein, der ignoriert werden soll.
 
-    Beispielinhalt der `blacklist.txt` Datei:
+    Beispiel für den Inhalt der `blacklist.txt` Datei:
 
     ```
     test-container
@@ -54,30 +60,31 @@ Dieses Bash-Skript überwacht den Status von Proxmox VMs und/oder Docker Contain
 
 5.  **Skript konfigurieren:**
 
-    Passe die folgenden Variablen im Skript `monitor.sh` *oder* `docker_monitor.sh` an:
+    Öffne das Skript `monitor.sh` *oder* `docker_monitor.sh` mit einem Texteditor und passe die folgenden Variablen an:
 
-    *   `NTFY_TOPIC`: Setze dies auf deinen ntfy.sh Topic Namen.
-    *   `STATUS_FILE`: Der Pfad zur Statusdatei (standardmäßig `/path/to/ntfy/status.txt`).
-    *   `BLACKLIST_FILE`: Der Pfad zur Blacklist-Datei (standardmäßig `/path/to/ntfy/blacklist.txt`).
-    *   `DISK_CONFIG_FILE`: Der Pfad zur Blacklist-Datei (standardmäßig `/path/to/ntfy/disk_config.txt`).
+    *   `NTFY_TOPIC`:  Setze dies auf den Namen deines ntfy.sh Topics.  Dieser Name wird verwendet, um Benachrichtigungen an deine Geräte zu senden.
+    *   `STATUS_FILE`:  Der Pfad zur Statusdatei (Standardwert: `/path/to/ntfy/status.txt`).  Du musst dies nur ändern, wenn du die Statusdatei an einem anderen Ort speichern möchtest.
+    *   `BLACKLIST_FILE`:  Der Pfad zur Blacklist-Datei (Standardwert: `/path/to/ntfy/blacklist.txt`).  Auch hier gilt:  Ändere dies nur, wenn du die Blacklist-Datei an einem anderen Ort gespeichert hast.
+    *   `DISK_CONFIG_FILE`:  Der Pfad zur `disk_config.txt` Datei (Standardwert: `/path/to/ntfy/disk_config.txt`).
+    *   `TEMP_THRESHOLD_FILE`: Der Pfad zur `temp_threshold.txt` Datei (Standardwert: `/path/to/ntfy/temp_threshold.txt`).
 
 ## ntfy.sh Topic einrichten
 
 1.  **ntfy.sh Webseite besuchen:**
 
-    Gehe zu [ntfy.sh](https://ntfy.sh) in deinem Webbrowser.
+    Öffne [ntfy.sh](https://ntfy.sh) in deinem Webbrowser.
 
 2.  **Topic erstellen:**
 
-    Gib deinen gewünschten Topic Namen ein (z.B. `myserver-monitor`) und drücke die Enter-Taste.
+    Gib einen Namen für dein Topic ein (z.B. `meinserver-monitoring`) und drücke die Enter-Taste.  Wähle einen Namen, der für dich leicht zu erkennen ist.
 
 3.  **Topic abonnieren:**
 
-    Befolge die Anweisungen auf der ntfy.sh Webseite, um den Topic mit der ntfy App auf deinem Smartphone oder Desktop zu abonnieren.
+    Befolge die Anweisungen auf der ntfy.sh Webseite, um das Topic mit der ntfy App auf deinem Smartphone oder Desktop zu abonnieren.  So erhältst du die Benachrichtigungen.
 
 ## Automatisierung mit Cronjob
 
-Um das Skript automatisch auszuführen, kannst du einen Cronjob einrichten.
+Um das Skript automatisch in regelmäßigen Abständen auszuführen, verwende einen Cronjob.
 
 1.  **Crontab öffnen:**
 
@@ -87,36 +94,40 @@ Um das Skript automatisch auszuführen, kannst du einen Cronjob einrichten.
 
 2.  **Cronjob hinzufügen:**
 
-    Füge die folgende Zeile hinzu, um das Skript jede Minute auszuführen:
+    Füge eine der folgenden Zeilen hinzu, um das Skript jede Minute auszuführen:
 
     ```
     * * * * * /home/scripts/ntfy/monitor.sh   # Für Proxmox und Docker
     * * * * * /home/scripts/ntfy/docker_monitor.sh  # Für reines Docker Monitoring
     ```
 
-    Passe den Pfad und den Skriptnamen an den tatsächlichen Speicherort deines Skripts an. Wähle *nur eine* dieser Zeilen, je nachdem, welches Skript du verwenden möchtest.
+    **Wichtig:**
+
+    *   Passe den Pfad `/home/scripts/ntfy/` an den tatsächlichen Speicherort deines Skripts an.
+    *   Wähle *nur eine* dieser Zeilen, je nachdem, welches Skript du verwendest.
+    *   **Minuteninterval:** Die Zahl vor dem ersten Stern legt das Intervall fest. Du kannst das Skript auch nur alle 5 Minuten ausführen lassen, indem du `*/5 * * * *` verwendest.
 
 3.  **Crontab speichern:**
 
-    Speichere die Crontab-Datei.
+    Speichere die Crontab-Datei.  Dein System wird das Skript nun automatisch ausführen.
 
-## Statusdatei
+## Die Statusdatei (`status.txt`)
 
-Das Skript erzeugt eine Statusdatei namens `status.txt` im Verzeichnis `/path/to/ntfy`. Diese Datei enthält den aktuellen Status aller überwachten VMs und/oder Container.
+Das Skript erstellt eine Datei namens `status.txt` in dem Verzeichnis, das du für die Konfiguration angegeben hast (`/path/to/ntfy`).  Diese Datei enthält den aktuellen Status aller überwachten VMs und/oder Container.  Du kannst diese Datei einsehen, um den Status auf einen Blick zu überprüfen.
 
-Die Zeilenumbrüche im Dockerpart sehen doof aus, das lässt sich aber mit dem Format vom docker ps beheben, dafür ist aber dein docker ps befehl zuständig das musst du anpassen (also ich)
+## Die Blacklist-Datei (`blacklist.txt`) bearbeiten
 
-## Blacklist-Datei bearbeiten
+Die `blacklist.txt` Datei ermöglicht es dir, bestimmte VMs oder Docker Container von der Überwachung auszuschließen.  Das ist nützlich, wenn du z.B. ein Testsystem hast, das du nicht überwachen möchtest.
 
-Die `blacklist.txt` Datei ermöglicht es dir, bestimmte VMs oder Docker Container von der Überwachung auszuschließen. Um einen Eintrag hinzuzufügen, öffne die Datei mit einem Texteditor (z.B. `nano` oder `vi`) und füge den Namen der VM oder des Containers in eine neue Zeile ein. Speichere die Datei, nachdem du deine Änderungen vorgenommen hast. Das Skript liest die Blacklist-Datei bei jeder Ausführung und ignoriert alle Einträge, die in der Blacklist-Datei aufgeführt sind.
+Um einen Eintrag hinzuzufügen oder zu entfernen, öffne die Datei mit einem Texteditor (z.B. `nano` oder `vi`) und füge den Namen der VM oder des Containers in eine neue Zeile ein.  Speichere die Datei.  Das Skript liest die Blacklist-Datei bei jeder Ausführung und ignoriert alle Einträge, die dort aufgeführt sind.
 
-## Disk-Konfigurationsdatei erstellen und bearbeiten
+## Die Disk-Konfigurationsdatei (`disk_config.txt`) erstellen und bearbeiten
 
-Die `disk_config.txt` Datei ermöglicht es dir, den freien Speicherplatz auf bestimmten Festplatten zu überwachen und Benachrichtigungen zu erhalten, wenn ein Schwellenwert unterschritten wird.
+Die `disk_config.txt` Datei ermöglicht es dir, den Füllstand bestimmter Festplatten zu überwachen und Benachrichtigungen zu erhalten, wenn der freie Speicherplatz unter einen bestimmten Wert fällt.
 
 1.  **Datei erstellen:**
 
-    Erstelle eine Datei namens `disk_config.txt` im Verzeichnis `/path/to/ntfy`.
+    Erstelle eine Datei namens `disk_config.txt` in dem Konfigurationsverzeichnis (`/path/to/ntfy`).
 
 2.  **Einträge hinzufügen:**
 
@@ -126,12 +137,14 @@ Die `disk_config.txt` Datei ermöglicht es dir, den freien Speicherplatz auf bes
     /pfad/zum/mountpoint=Schwellenwert_in_MB
     ```
 
-    Beispielinhalt der `disk_config.txt` Datei:
+    Beispiel für den Inhalt der `disk_config.txt` Datei:
 
     ```
     /var/log=1024  # Benachrichtigung, wenn weniger als 1024 MB (1 GB) frei sind
     /home=5120  # Benachrichtigung, wenn weniger als 5120 MB (5 GB) frei sind
     ```
+
+    *Ersetze `/pfad/zum/mountpoint` durch den tatsächlichen Pfad, z.B. `/var/log` oder `/home`.*
 
 3.  **Kommentare:**
 
@@ -141,16 +154,37 @@ Die `disk_config.txt` Datei ermöglicht es dir, den freien Speicherplatz auf bes
     # Dies ist ein Kommentar
     /var/log=1024  # Überwache /var/log auf weniger als 1 GB
     ```
+
+## Temperaturüberwachung
+
+Das Skript kann auch die CPU-Temperatur überwachen und Benachrichtigungen senden, wenn ein konfigurierter Schwellenwert überschritten wird.
+
+1.  **`temp_threshold.txt` Datei erstellen:**
+
+    Erstelle eine Datei namens `temp_threshold.txt` im Verzeichnis `/path/to/ntfy`.
+
+2.  **Schwellenwert hinzufügen:**
+
+    Füge in der ersten Zeile den Schwellenwert für die CPU-Temperatur in Grad Celsius hinzu:
+
+    ```
+    70
+    ```
+
+3.  **Node-Namen hinzufügen (optional):**
+
+    Gehe dafür einfach in das haupt script und setze dort die Variable `NODE_NAME` auf den gewünschten namen.
+
 ## Fehlerbehebung
 
 *   **Keine Benachrichtigungen erhalten:**
     *   Stelle sicher, dass dein ntfy.sh Topic korrekt eingerichtet ist und du den Topic mit der ntfy App abonniert hast.
-    *   Überprüfe, ob das Skript korrekt ausgeführt wird (überprüfe die Cronjob-Einstellungen).
+    *   Überprüfe, ob das Skript korrekt ausgeführt wird (überprüfe die Cronjob-Einstellungen und die Logdateien, falls vorhanden).
     *   Überprüfe die Statusdatei, um sicherzustellen, dass das Skript den Status der VMs und Container korrekt erfasst.
     *   Überprüfe die Blacklist-Datei, um sicherzustellen, dass die VMs und Container, die du überwachen möchtest, nicht versehentlich ausgeschlossen wurden.
 *   **Falsche Statusmeldungen:**
     *   Überprüfe die Statusdatei, um sicherzustellen, dass das Skript den Status der VMs und Container korrekt erfasst.
-    *   Stelle sicher, dass die Zeit auf deinem Proxmox Server korrekt eingestellt ist.
+    *   Stelle sicher, dass die Zeit auf deinem Proxmox Server korrekt eingestellt ist (falsche Zeit kann zu falschen Statusmeldungen führen).
 
 ## Lizenz
 
@@ -163,5 +197,3 @@ Die Nutzung dieses Skripts erfolgt auf eigene Gefahr. Der Autor übernimmt keine
 ## Unterstützung
 
 Bei Fragen oder Problemen kannst du ein Issue in diesem GitHub Repository erstellen.
-
-
