@@ -110,6 +110,37 @@ Die Zeilenumbrüche im Dockerpart sehen doof aus, das lässt sich aber mit dem F
 
 Die `blacklist.txt` Datei ermöglicht es dir, bestimmte VMs oder Docker Container von der Überwachung auszuschließen. Um einen Eintrag hinzuzufügen, öffne die Datei mit einem Texteditor (z.B. `nano` oder `vi`) und füge den Namen der VM oder des Containers in eine neue Zeile ein. Speichere die Datei, nachdem du deine Änderungen vorgenommen hast. Das Skript liest die Blacklist-Datei bei jeder Ausführung und ignoriert alle Einträge, die in der Blacklist-Datei aufgeführt sind.
 
+## Disk-Konfigurationsdatei erstellen und bearbeiten
+
+Die `disk_config.txt` Datei ermöglicht es dir, den freien Speicherplatz auf bestimmten Festplatten zu überwachen und Benachrichtigungen zu erhalten, wenn ein Schwellenwert unterschritten wird.
+
+1.  **Datei erstellen:**
+
+    Erstelle eine Datei namens `disk_config.txt` im Verzeichnis `/home/scripts/ntfy`.
+
+2.  **Einträge hinzufügen:**
+
+    Füge in jeder Zeile den Pfad zum Mountpoint der Festplatte und den Schwellenwert (in MB) hinzu, getrennt durch ein Gleichheitszeichen (`=`):
+
+    ```
+    /pfad/zum/mountpoint=Schwellenwert_in_MB
+    ```
+
+    Beispielinhalt der `disk_config.txt` Datei:
+
+    ```
+    /var/log=1024  # Benachrichtigung, wenn weniger als 1024 MB (1 GB) frei sind
+    /home=5120  # Benachrichtigung, wenn weniger als 5120 MB (5 GB) frei sind
+    ```
+
+3.  **Kommentare:**
+
+    Du kannst Kommentare hinzufügen, indem du eine Zeile mit einem Hash-Zeichen (`#`) beginnst:
+
+    ```
+    # Dies ist ein Kommentar
+    /var/log=1024  # Überwache /var/log auf weniger als 1 GB
+    ```
 ## Fehlerbehebung
 
 *   **Keine Benachrichtigungen erhalten:**
