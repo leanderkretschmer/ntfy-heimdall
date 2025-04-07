@@ -5,7 +5,6 @@ NTFY_TOPIC="ntfy-chat"
 STATUS_FILE="/path/to/ntfy/status.txt"
 BLACKLIST_FILE="/path/to/ntfy/blacklist.txt"
 DISK_CONFIG_FILE="/path/to/ntfy/disk_config.txt"
-
 # Function to send a notification
 send_notification() {
   message="$1"
@@ -120,6 +119,7 @@ CURRENT_PROXMOX_STATUS=$(get_proxmox_status)
 CURRENT_DOCKER_STATUS=$(get_docker_status)
 
 # Write current status to file with timestamp
+echo "#####################################################"
 echo "" >> "$STATUS_FILE"
 echo "                Aktueller Status - $(date +'%H:%M')             " >> "$STATUS_FILE"
 echo "" >> "$STATUS_FILE"
@@ -223,6 +223,7 @@ if [ -f "$STATUS_FILE.old" ]; then
   done < "$STATUS_FILE"
 fi
 
+echo ""
 echo "for updates and new versions visit" 
 echo "https://github.com/leanderkretschmer/ntfy-heimdall"
 
