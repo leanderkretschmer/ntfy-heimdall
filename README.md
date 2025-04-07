@@ -1,4 +1,7 @@
-# Proxmox und Docker Monitoring Skript
+# Heimdall - Proxmox und Docker Monitoring
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Roadmap](https://img.shields.io/badge/Roadmap-View-blue)](ROADMAP.md)
 
 Dieses Skript überwacht den Status deiner Proxmox VMs und/oder Docker Container und sendet dir Benachrichtigungen über [ntfy.sh](https://ntfy.sh). So bleibst du informiert, wenn etwas nicht wie erwartet läuft.
 
