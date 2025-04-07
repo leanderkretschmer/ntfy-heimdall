@@ -38,17 +38,16 @@ Dieses Bash-Skript überwacht den Status von Proxmox VMs und/oder Docker Contain
 3.  **Verzeichnis für Statusdateien erstellen:**
 
     ```bash
-    mkdir -p /home/scripts/ntfy
+    mkdir -p /path/to/ntfy
     ```
 
 4.  **Blacklist-Datei erstellen (optional):**
 
-    Wenn du bestimmte VMs oder Container von der Überwachung ausschließen möchtest, erstelle eine Datei namens `blacklist.txt` im Verzeichnis `/home/scripts/ntfy`. Füge in jeder Zeile den Namen einer VM oder eines Containers hinzu, die/der ausgeschlossen werden soll.
+    Wenn du bestimmte VMs oder Container von der Überwachung ausschließen möchtest, erstelle eine Datei namens `blacklist.txt` im Verzeichnis `/path/to/ntfy`. Füge in jeder Zeile den Namen einer VM oder eines Containers hinzu, die/der ausgeschlossen werden soll.
 
     Beispielinhalt der `blacklist.txt` Datei:
 
     ```
-    beszel-agent
     test-container
     VM-XYZ
     ```
@@ -58,8 +57,9 @@ Dieses Bash-Skript überwacht den Status von Proxmox VMs und/oder Docker Contain
     Passe die folgenden Variablen im Skript `monitor.sh` *oder* `docker_monitor.sh` an:
 
     *   `NTFY_TOPIC`: Setze dies auf deinen ntfy.sh Topic Namen.
-    *   `STATUS_FILE`: Der Pfad zur Statusdatei (standardmäßig `/home/scripts/ntfy/status.txt`).
-    *   `BLACKLIST_FILE`: Der Pfad zur Blacklist-Datei (standardmäßig `/home/scripts/ntfy/blacklist.txt`).
+    *   `STATUS_FILE`: Der Pfad zur Statusdatei (standardmäßig `/path/to/ntfy/status.txt`).
+    *   `BLACKLIST_FILE`: Der Pfad zur Blacklist-Datei (standardmäßig `/path/to/ntfy/blacklist.txt`).
+    *   `DISK_CONFIG_FILE`: Der Pfad zur Blacklist-Datei (standardmäßig `/path/to/ntfy/disk_config.txt`).
 
 ## ntfy.sh Topic einrichten
 
@@ -102,7 +102,7 @@ Um das Skript automatisch auszuführen, kannst du einen Cronjob einrichten.
 
 ## Statusdatei
 
-Das Skript erzeugt eine Statusdatei namens `status.txt` im Verzeichnis `/home/scripts/ntfy`. Diese Datei enthält den aktuellen Status aller überwachten VMs und/oder Container.
+Das Skript erzeugt eine Statusdatei namens `status.txt` im Verzeichnis `/path/to/ntfy`. Diese Datei enthält den aktuellen Status aller überwachten VMs und/oder Container.
 
 Die Zeilenumbrüche im Dockerpart sehen doof aus, das lässt sich aber mit dem Format vom docker ps beheben, dafür ist aber dein docker ps befehl zuständig das musst du anpassen (also ich)
 
@@ -116,7 +116,7 @@ Die `disk_config.txt` Datei ermöglicht es dir, den freien Speicherplatz auf bes
 
 1.  **Datei erstellen:**
 
-    Erstelle eine Datei namens `disk_config.txt` im Verzeichnis `/home/scripts/ntfy`.
+    Erstelle eine Datei namens `disk_config.txt` im Verzeichnis `/path/to/ntfy`.
 
 2.  **Einträge hinzufügen:**
 
