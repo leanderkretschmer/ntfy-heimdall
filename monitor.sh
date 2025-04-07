@@ -91,6 +91,18 @@ get_disk_space() {
 
 # Main script
 
+# Ausgabe des ASCII Art Banners
+echo "#####################################################"
+echo "" 
+echo "+---------------------------------------------------+"
+echo "|  _   _ _____ ___ __  __ ____    _    _     _      |"
+echo "| | | | | ____|_ _|  \\/  |  _ \\  / \\  | |   | |     |"
+echo "| | |_| |  _|  | || |\\/| | | | |/ _ \\ | |   | |     |"
+echo "| |  _  | |___ | || |  | | |_| / ___ \\| |___| |___  |"
+echo "| |_| |_|_____|___|_|  |_|____/_/   \\_\\_____|_____| |"
+echo "+---------------------------------------------------+"
+echo ""
+
 # 1. Rotate the old status file (delete if it exists, then rename)
 if [ -f "$STATUS_FILE.old" ]; then
   rm -f "$STATUS_FILE.old"
@@ -108,9 +120,8 @@ CURRENT_PROXMOX_STATUS=$(get_proxmox_status)
 CURRENT_DOCKER_STATUS=$(get_docker_status)
 
 # Write current status to file with timestamp
-echo "#######################################################" >> "$STATUS_FILE"
-echo "#               Aktueller Status - $(date +'%H:%M')              #" >> "$STATUS_FILE"
-echo "#######################################################" >> "$STATUS_FILE"
+echo "" >> "$STATUS_FILE"
+echo "                Aktueller Status - $(date +'%H:%M')             " >> "$STATUS_FILE"
 echo "" >> "$STATUS_FILE"
 
 echo "$CURRENT_PROXMOX_STATUS" | while read line; do
@@ -123,20 +134,22 @@ done
 
 # Read the disk configuration file and check the disk space
 if [ -f "$DISK_CONFIG_FILE" ]; then
-for line in $(cat "$DISK_CONFIG_FILE")
-do
-#Skip comments and empty lines
- if [[ "$line" =~ ^[[:space:]]*#.* ]] || [[ -z "$line" ]]; then
- continue
+  # Read all lines from the DISK_CONFIG_FILE into an array
+  DISK_CONFIG_LINES=($(cat "$DISK_CONFIG_FILE"))
+  # Iterate over the lines
+  for LINE in "${DISK_CONFIG_LINES[@]}"; do
+    # Skip comments and empty lines
+    if [[ "$LINE" =~ ^[[:space:]]*#.* ]] || [[ -z "$LINE" ]]; then
+      continue
     fi
-IFS='=' read -r path threshold <<< "$line"
- # Check the disk space
-   create_db_entry "$(get_disk_space "$path" "$threshold")" >> "$STATUS_FILE"
-done
+    # Split the line into path and threshold
+    IFS='=' read -r path threshold <<< "$LINE"
+    # Log disk space
+    create_db_entry "$(get_disk_space "$path" "$threshold")" >> "$STATUS_FILE"
+  done
 fi
-
 echo "" >> "$STATUS_FILE"
-echo "#######################################################" >> "$STATUS_FILE"
+echo "#####################################################" >> "$STATUS_FILE"
 
 # 3. Änderungen erkennen und Benachrichtigungen senden
 if [ -f "$STATUS_FILE.old" ]; then
@@ -209,5 +222,8 @@ if [ -f "$STATUS_FILE.old" ]; then
     fi
   done < "$STATUS_FILE"
 fi
+
+echo "for updates and new versions visit" 
+echo "https://github.com/leanderkretschmer/ntfy-heimdall"
 
 exit 0
