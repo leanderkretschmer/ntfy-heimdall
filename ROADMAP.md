@@ -37,6 +37,7 @@ Ein benutzerfreundliches, flexibles und umfassendes Monitoring-Tool für Proxmox
 *   **Ziel:** Die Installation und Konfiguration des Tools so einfach wie möglich gestalten.
 *   **Aufgaben:**
     *   [ ] **Installationsskript:** Ein interaktives Installationsskript erstellen, das alle erforderlichen Abhängigkeiten installiert, die Konfigurationsdatei erstellt und den Cronjob einrichtet.
+    *   [ ] **Config über eine weboberfläche**
     *   [ ] **Interaktive Konfiguration:** Während der Installation die Möglichkeit bieten, die Konfiguration über eine Chat-ähnliche Oberfläche anzupassen.
     *   [ ] **Automatisches Update:** Eine Funktion zum automatischen Aktualisieren des Skripts aus dem GitHub Repository hinzufügen.
 
